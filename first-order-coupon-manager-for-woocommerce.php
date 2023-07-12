@@ -3,7 +3,7 @@
  * Plugin Name: First Order Coupon Manager for WooCommerce
  * Plugin URI: https://github.com/ashrafulsarkar/first-order-coupon-manager-woocommerce
  * Description: Maintain the first-order discount using this plugin.
- * Version: 1.1.1
+ * Version: 1.2.0
  * Author: Ashraful Sarkar
  * Author URI: https://github.com/ashrafulsarkar
  * Text Domain: wfocd
@@ -48,8 +48,7 @@ class FirstOrderCouponManager
     /**
      * Admin notice
      */
-    public function admin_notices()
-    {
+    public function admin_notices() {
 ?>
         <div class="error">
             <p><?php echo wp_kses(
@@ -116,9 +115,36 @@ class FirstOrderCouponManager
         }
     }
 
+    // Update order review
+    public function wfocd_woocommerce_checkout_update_order_review($posted_data) {
+        global $woocommerce;
+        
+        $post = [];
+        $vars = explode('&', $posted_data);
+        foreach ($vars as $k => $value){
+            $v = explode('=', urldecode($value));
+            $post[$v[0]] = $v[1];
+        }
+        
+        $update = [];
+        if( isset($post['billing_first_name']) && !empty($post['billing_first_name']) ){
+            $update['billing_first_name'] = wc_clean( wp_unslash($post['billing_first_name']) );
+        }
+        if( isset($post['billing_last_name']) && !empty($post['billing_last_name']) ){
+            $update['billing_last_name'] = wc_clean( wp_unslash($post['billing_last_name']) );
+        }
+        if( isset($post['billing_email']) && !empty($post['billing_email']) ){
+            $update['billing_email'] = wc_clean( wp_unslash($post['billing_email']) );
+        }
+
+        if( !empty($update) ){
+            WC()->customer->set_props($update);
+            WC()->customer->save();
+        }
+    }
+
     // Valid
-    public function wfocd_filter_woocommerce_coupon_is_valid($is_valid, $coupon, $discount)
-    {
+    public function wfocd_filter_woocommerce_coupon_is_valid($is_valid, $coupon, $discount) {
         // Get meta
         $wfocd_first_order = $coupon->get_meta('wfocd_first_order');
 
@@ -180,8 +206,7 @@ class FirstOrderCouponManager
 /**
  * wfocd_init Function
  */
-function wfocd_init()
-{
+function wfocd_init() {
     $wfocd_init = new FirstOrderCouponManager();
     $wfocd_init->init();
 }
