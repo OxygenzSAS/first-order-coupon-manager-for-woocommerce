@@ -87,33 +87,6 @@ class FirstOrderCouponManager
         $coupon->update_meta_data('wfocd_first_order', isset($_POST['wfocd_first_order']) ? 'yes' : 'no');
         $coupon->save();
     }
-    
-    public function wfocd_woocommerce_checkout_update_order_review($posted_data) {
-        global $woocommerce;
-        
-        $post = [];
-        $vars = explode('&', $posted_data);
-        foreach ($vars as $k => $value){
-            $v = explode('=', urldecode($value));
-            $post[$v[0]] = $v[1];
-        }
-        
-        $update = [];
-        if( isset($post['billing_first_name']) && !empty($post['billing_first_name']) ){
-            $update['billing_first_name'] = wc_clean( wp_unslash($post['billing_first_name']) );
-        }
-        if( isset($post['billing_last_name']) && !empty($post['billing_last_name']) ){
-            $update['billing_last_name'] = wc_clean( wp_unslash($post['billing_last_name']) );
-        }
-        if( isset($post['billing_email']) && !empty($post['billing_email']) ){
-            $update['billing_email'] = wc_clean( wp_unslash($post['billing_email']) );
-        }
-
-        if( !empty($update) ){
-            WC()->customer->set_props($update);
-            WC()->customer->save();
-        }
-    }
 
     // Update order review
     public function wfocd_woocommerce_checkout_update_order_review($posted_data) {
